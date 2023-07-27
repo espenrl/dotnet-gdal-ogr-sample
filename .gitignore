@@ -1,0 +1,14 @@
+# build output
+bin/
+
+# build temporary
+obj/
+
+# Visual Studio cache/options directory
+.vs/
+
+# per user
+*.user
+
+#jetbrains
+.idea/
