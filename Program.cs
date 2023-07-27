@@ -75,6 +75,8 @@ layer.SyncToDisk();
 dataSource.SyncToDisk();
 dataSource.FlushCache();
 
+Console.WriteLine($"Sample database written to {fileGdbPath}");
+
 
 
 static void TransformGeometryInPlaceSample(Geometry geom)
