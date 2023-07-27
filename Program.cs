@@ -24,9 +24,9 @@ var applicationPath = Path.GetDirectoryName(typeof(Program).Assembly.Location);
 ArgumentException.ThrowIfNullOrEmpty(applicationPath);
 var fileGdbPath = Path.Combine(applicationPath, "sample.gdb");
 
-if (File.Exists(fileGdbPath))
+if (Directory.Exists(fileGdbPath))
 {
-    File.Delete(fileGdbPath);
+    Directory.Delete(fileGdbPath, recursive: true);
 }
 
 var spatialReference = new SpatialReference(null);
@@ -47,6 +47,7 @@ using var nameField = new FieldDefn("Name", FieldType.OFTString);
 using var emailField = new FieldDefn("Email", FieldType.OFTString);
 
 layer.CreateField(nameField, approx_ok: 0); // approx_ok is a boolean 0/1
+layer.CreateField(emailField, approx_ok: 0);
 
 using var featureDefinition = layer.GetLayerDefn();
 
