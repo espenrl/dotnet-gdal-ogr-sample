@@ -32,13 +32,13 @@ if (Directory.Exists(fileGdbPath))
 var spatialReference = new SpatialReference(null);
 spatialReference.ImportFromEPSG(4326);
 
-using var driver = Ogr.GetDriverByName("OpenFileGDB"); // OpenFileGDB or FileGDB (legacy ESRI dependent SDK) driver
+using var driver = Ogr.GetDriverByName("OpenFileGDB"); // OpenFileGDB driver or FileGDB driver (legacy, ESRI SDK dependent)
 using var dataSource = driver.CreateDataSource(
     utf8_path: fileGdbPath,
     options: Array.Empty<string>());
 
 using var layer = dataSource.CreateLayer(
-    name: "test",
+    name: "Employee",
     srs: spatialReference,
     geom_type: wkbGeometryType.wkbPoint,
     options: Array.Empty<string>());
@@ -51,18 +51,29 @@ layer.CreateField(emailField, approx_ok: 0);
 
 using var featureDefinition = layer.GetLayerDefn();
 
-/* NOTE: possible to create geometry from WKT, WKB, GML
- * Geometry.CreateFromGML()
- * Geometry.CreateFromWkb()
- * Geometry.CreateFromWkt()
+/* wkbPoint: 2D
+ * wkbPoint25D: 3D
+ * wkbPointM: 2D + associated measure
+ * wkbPointZM: 3D + associated measure
+ *
+ * NOTE: 25D and Z are used interchangeably
+ * 2.5D hints about the fact that the geometry is 3D, and that the Z coordinate is not used for many calculations
+ * - it's the difference between geographic surfaces and geographic volumes
+ * - please see https://gis.stackexchange.com/a/99996
  */
 
-var geometry = new Geometry(wkbGeometryType.wkbPoint);
+var geometry = new Geometry(wkbGeometryType.wkbPoint); // 2D point
 geometry.AssignSpatialReference(spatialReference);
 geometry.SetPoint_2D(
     point: 0,
     x: 123,
     y: 456);
+
+/* NOTE: it's possible to create a geometry from WKT, WKB, GML
+ * Geometry.CreateFromGML()
+ * Geometry.CreateFromWkb()
+ * Geometry.CreateFromWkt()
+ */
 
 using var feature = new Feature(featureDefinition);
 feature.SetField("Name", "John");
