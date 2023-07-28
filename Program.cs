@@ -1,14 +1,19 @@
 ﻿/* This example will use GDAL to create a ESRI File Geodatabase (FileGDB)
  * 
  * Terminology
+ * - driver: GDAL has multiple drivers, each driver can read (and possibly write) to a given data source (GeoJSON, PostgreSQL / PostGIS, Shapefile, AutoCAD DXF, KML etc.)
  * - layer: a dataset containing multiple features
  * - feature: object containing multiple data fields + geometry field
+ * - field:
+ *   - a layer   consists of multiple field definitions
+ *   - a feature consists of multiple fields
+
  * 
  * Notes
  * - layer is very much akin to a table
  * - feature is very much akin to a row in a table (data fields and geometry field being columns)
  * - a single ESRI File Geodatabase can have multiple layers
- * - a single layer has only one type of geometries (points, lines, polygons)
+ * - a single layer has only one type of geometries (points, lines or polygons)
  * - a single layer has only one geometry field
  */
 
@@ -49,7 +54,7 @@ spatialReference.ImportFromEPSG(4326);
 using var driver = Ogr.GetDriverByName("OpenFileGDB"); // OpenFileGDB driver or FileGDB driver (legacy, ESRI SDK dependent)
 using var dataSource = driver.CreateDataSource(
     utf8_path: fileGdbPath,
-    options: Array.Empty<string>()); // available dataset options at https://gdal.org/drivers/vector/openfilegdb.html
+    options: Array.Empty<string>()); // available data source options at https://gdal.org/drivers/vector/openfilegdb.html
 
 using var layer = dataSource.CreateLayer(
     name: "Employee",
