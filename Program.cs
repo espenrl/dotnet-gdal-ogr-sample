@@ -1,30 +1,34 @@
 ﻿/* This example will use GDAL to create a ESRI File Geodatabase (FileGDB)
- * 
+ *
  * Terminology
  * - driver: GDAL has multiple drivers, each driver can read (and possibly write) to a given data source (GeoJSON, PostgreSQL / PostGIS, Shapefile, AutoCAD DXF, KML etc.)
  * - layer: a dataset containing multiple features
  * - feature: object containing multiple data fields + geometry field
- * - field:
- *   - a layer   consists of multiple field definitions
- *   - a feature consists of multiple fields
-
+ * - field: a feature consist of multiple fields
+ * - field definition: a layer consist of multiple field definitions
+ * - GDAL: Geospatial Data Abstraction Library
+ * - OGR: OpenGIS Simple Features Reference - GDAL naming for dealing with vector data (as opposed to raster data)
+ * - OSR: OpenGIS Spatial Reference System - GDAL naming for dealing with coordinate reference systems
  * 
  * Notes
  * - layer is very much akin to a table
  * - feature is very much akin to a row in a table (data fields and geometry field being columns)
  * - feature is very much akin to a programming language object (data fields and geometry field being properties)
+ * - field definition is very much akin to a table column
+ * - field is very much akin to a table cell
  * - a single ESRI File Geodatabase can have multiple layers
  * - a single layer has only one type of geometries (points, lines or polygons)
  * - a single layer has only one geometry field
+ *
+ * The code will create a database `sample.gdb` with a layer `Employee` containing the following data
+ *
+ * | OBJECTID | Name  | Email           | Shape                  |
+ * | -------- | ----- | --------------- | ---------------------- |
+ * | 1        | Bob   | bob@google.com  | POINT(71.1710 25.7837) |
+ * | 2        | John  | john@google.com | POINT(71.1710 25.7837) |
  */
 
-// Works on Windows, Linux and macOS (both x64 and ARM64) - please see https://github.com/MaxRev-Dev/gdal.netcore
 
-// See available GDAL vector drivers at https://gdal.org/drivers/vector/index.html (also check which drivers supports creation)
-
-// GDAL C# documentation: https://gdal.org/api/csharp.html
-
-// GDAL C/C++ documentation: https://gdal.org/api/index.html (more detailed than the C# documentation - and the C# API is a wrapper over the C/C++ API)
 
 using MaxRev.Gdal.Core;
 using OSGeo.GDAL;
@@ -95,18 +99,36 @@ geometry.SetPoint_2D(
  * Geometry.CreateFromWkt()
  */
 
-using var feature = new Feature(featureDefinition);
-feature.SetField("Name", "John");
-feature.SetField("Email", "john@google.com");
-feature.SetGeometry(geometry);
+using var featureA = new Feature(featureDefinition);
+featureA.SetField("Name", "Bob");
+featureA.SetField("Email", "bob@google.com");
+featureA.SetGeometry(geometry);
 
-layer.CreateFeature(feature);
+using var featureB = new Feature(featureDefinition);
+featureB.SetField("Name", "John");
+featureB.SetField("Email", "john@google.com");
+featureB.SetGeometry(geometry);
+
+layer.CreateFeature(featureA);
+layer.CreateFeature(featureB);
 
 layer.SyncToDisk();
 dataSource.SyncToDisk();
 dataSource.FlushCache();
 
 Console.WriteLine($"Sample database written to {fileGdbPath}");
+
+
+
+
+
+/* Additional notes
+ * Works on Windows, Linux and macOS (both x64 and ARM64) - please see https://github.com/MaxRev-Dev/gdal.netcore
+ * See available GDAL vector drivers at https://gdal.org/drivers/vector/index.html (also check which drivers supports creation)
+ * GDAL C# documentation: https://gdal.org/api/csharp.html
+ * GDAL C/C++ documentation: https://gdal.org/api/index.html (more detailed than the C# documentation - and the C# API is a wrapper over the C/C++ API)
+ */
+
 
 
 
