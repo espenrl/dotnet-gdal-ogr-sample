@@ -12,6 +12,7 @@
  * Notes
  * - layer is very much akin to a table
  * - feature is very much akin to a row in a table (data fields and geometry field being columns)
+ * - feature is very much akin to a programming language object (data fields and geometry field being properties)
  * - a single ESRI File Geodatabase can have multiple layers
  * - a single layer has only one type of geometries (points, lines or polygons)
  * - a single layer has only one geometry field
@@ -19,11 +20,11 @@
 
 // Works on Windows, Linux and macOS (both x64 and ARM64) - please see https://github.com/MaxRev-Dev/gdal.netcore
 
+// See available GDAL vector drivers at https://gdal.org/drivers/vector/index.html (also check which drivers supports creation)
+
 // GDAL C# documentation: https://gdal.org/api/csharp.html
 
 // GDAL C/C++ documentation: https://gdal.org/api/index.html (more detailed than the C# documentation - and the C# API is a wrapper over the C/C++ API)
-
-// See available GDAL vector drivers at https://gdal.org/drivers/vector/index.html (also check which drivers supports creation)
 
 using MaxRev.Gdal.Core;
 using OSGeo.GDAL;
@@ -49,7 +50,7 @@ if (Directory.Exists(fileGdbPath))
 }
 
 var spatialReference = new SpatialReference(null);
-spatialReference.ImportFromEPSG(4326);
+spatialReference.ImportFromEPSG(4326); // WGS84 - World Geodetic System 1984 (used in GPS)
 
 using var driver = Ogr.GetDriverByName("OpenFileGDB"); // OpenFileGDB driver or FileGDB driver (legacy, ESRI SDK dependent)
 using var dataSource = driver.CreateDataSource(
@@ -62,11 +63,11 @@ using var layer = dataSource.CreateLayer(
     geom_type: wkbGeometryType.wkbPoint,
     options: Array.Empty<string>()); // available layer options at https://gdal.org/drivers/vector/openfilegdb.html
 
-using var nameField = new FieldDefn("Name", FieldType.OFTString);
-using var emailField = new FieldDefn("Email", FieldType.OFTString);
+using var nameFieldDefinition = new FieldDefn("Name", FieldType.OFTString);
+using var emailFieldDefinition = new FieldDefn("Email", FieldType.OFTString);
 
-layer.CreateField(nameField, approx_ok: 0); // approx_ok is a boolean 0/1
-layer.CreateField(emailField, approx_ok: 0);
+layer.CreateField(nameFieldDefinition, approx_ok: 0); // approx_ok is a boolean 0/1
+layer.CreateField(emailFieldDefinition, approx_ok: 0);
 
 using var featureDefinition = layer.GetLayerDefn();
 
