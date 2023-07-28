@@ -1,10 +1,24 @@
-﻿// Works on Windows, Linux and macOS (both x64 and ARM64) - please see https://github.com/MaxRev-Dev/gdal.netcore
+﻿/* This example will use GDAL to create a ESRI File Geodatabase (FileGDB)
+ * 
+ * Terminology
+ * - layer: a dataset containing multiple features
+ * - feature: object containing multiple data fields + geometry field
+ * 
+ * Notes
+ * - layer is very much akin to a table
+ * - feature is very much akin to a row in a table (data fields and geometry field being columns)
+ * - a single ESRI File Geodatabase can have multiple layers
+ * - a single layer has only one type of geometries (points, lines, polygons)
+ * - a single layer has only one geometry field
+ */
+
+// Works on Windows, Linux and macOS (both x64 and ARM64) - please see https://github.com/MaxRev-Dev/gdal.netcore
 
 // GDAL C# documentation: https://gdal.org/api/csharp.html
 
 // GDAL C/C++ documentation: https://gdal.org/api/index.html (more detailed than the C# documentation - and the C# API is a wrapper over the C/C++ API)
 
-// See available vector drivers at https://gdal.org/drivers/vector/index.html (also check which drivers supports creation)
+// See available GDAL vector drivers at https://gdal.org/drivers/vector/index.html (also check which drivers supports creation)
 
 using MaxRev.Gdal.Core;
 using OSGeo.GDAL;
@@ -18,7 +32,7 @@ Gdal.UseExceptions();
 Ogr.UseExceptions();
 Osr.UseExceptions();
 
-// Use Gdal class for raster data, Ogr class for vector data, Osr class for spatial reference systems
+// NOTE: use Gdal class for raster data, Ogr class for vector data, Osr class for spatial reference systems
 
 var applicationPath = Path.GetDirectoryName(typeof(Program).Assembly.Location);
 ArgumentException.ThrowIfNullOrEmpty(applicationPath);
@@ -35,13 +49,13 @@ spatialReference.ImportFromEPSG(4326);
 using var driver = Ogr.GetDriverByName("OpenFileGDB"); // OpenFileGDB driver or FileGDB driver (legacy, ESRI SDK dependent)
 using var dataSource = driver.CreateDataSource(
     utf8_path: fileGdbPath,
-    options: Array.Empty<string>());
+    options: Array.Empty<string>()); // available dataset options at https://gdal.org/drivers/vector/openfilegdb.html
 
 using var layer = dataSource.CreateLayer(
     name: "Employee",
     srs: spatialReference,
     geom_type: wkbGeometryType.wkbPoint,
-    options: Array.Empty<string>());
+    options: Array.Empty<string>()); // available layer options at https://gdal.org/drivers/vector/openfilegdb.html
 
 using var nameField = new FieldDefn("Name", FieldType.OFTString);
 using var emailField = new FieldDefn("Email", FieldType.OFTString);
@@ -66,10 +80,10 @@ var geometry = new Geometry(wkbGeometryType.wkbPoint); // 2D point
 geometry.AssignSpatialReference(spatialReference);
 geometry.SetPoint_2D(
     point: 0,
-    x: 123,
-    y: 456);
+    x: 25.7837,
+    y: 71.1710); // North Cape 71.1710° N, 25.7837° E
 
-/* NOTE: it's possible to create a geometry from WKT, WKB, GML
+/* NOTE: it's also possible to create a geometry from WKT, WKB, GML
  * Geometry.CreateFromGML()
  * Geometry.CreateFromWkb()
  * Geometry.CreateFromWkt()
@@ -90,6 +104,8 @@ Console.WriteLine($"Sample database written to {fileGdbPath}");
 
 
 
+
+// example how to transform geometry between different coordinate systems
 static void TransformGeometryInPlaceSample(Geometry geom)
 {
     // Transform geometry from WGS84 to British National Grid
